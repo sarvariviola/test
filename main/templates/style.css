@@ -1,0 +1,14 @@
+body {
+    background-color: #1b1e2f; 
+    color: #fff;
+}
+.sidebar {
+    background-color: #2a2f4a;
+    min-height: 100vh;
+}
+.sidebar label {
+    font-weight: bold;
+}
+.sidebar select, .sidebar input {
+     margin-bottom: 1rem;
+}

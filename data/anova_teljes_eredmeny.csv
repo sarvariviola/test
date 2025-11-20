@@ -1,0 +1,59 @@
+The GLM Procedure
+"Class Level Information",,
+"Class","Levels","Values"
+"Orszag",4,"Bulgária Magyarország Románia Szerbia"
+
+"Number of Observations Read",24
+"Number of Observations Used",24
+
+The GLM Procedure
+Dependent Variable: Gdp_mill_eur   Gdp_mill_eur
+"Source","DF","Sum of Squares","Mean Square","F Value","Pr > F"
+"Model",3,143200870390,47733623463,64.47,"<.0001"
+"Error",20,14808178075,740408903.74,,
+"Corrected Total",23,158009048465,,,
+
+"R-Square","Coeff Var","Root MSE","Gdp_mill_eur Mean"
+0.906283,20.39207,27210.46,133436.5
+
+"Source","DF","Type I SS","Mean Square","F Value","Pr > F"
+"Orszag",3,143200870390,47733623463,64.47,"<.0001"
+
+"Source","DF","Type III SS","Mean Square","F Value","Pr > F"
+"Orszag",3,143200870390,47733623463,64.47,"<.0001"
+
+The GLM Procedure
+"Levene's Test for Homogeneity of Gdp_mill_eur VarianceANOVA of Squared Deviations from Group Means",,,,,
+"Source","DF","Sum of Squares","Mean Square","F Value","Pr > F"
+"Orszag",3,9.278E18,3.093E18,2.81,0.0657
+"Error",20,2.2E19,1.1E18,,
+
+"Welch's ANOVA for Gdp_mill_eur",,,
+"Source","DF","F Value","Pr > F"
+"Orszag",3.0000,50.89,"<.0001"
+"Error",10.4181,,
+
+The GLM Procedure
+"Level ofOrszag","N","Gdp_mill_eur",
+,,"Mean","Std Dev"
+"Bulgária","6",71920.350,15377.0121
+"Magyarország","6",155673.833,24378.0490
+"Románia","6",250072.417,44701.2099
+"Szerbia","6",56079.283,11519.3609
+
+The GLM Procedure
+Least Squares Means
+Adjustment for Multiple Comparisons: Tukey
+"Orszag","Gdp_mill_eur LSMEAN","LSMEAN Number"
+"Bulgária",71920.350,1
+"Magyarország",155673.833,2
+"Románia",250072.417,3
+"Szerbia",56079.283,4
+
+"Least Squares Means for effect OrszagPr > |t| for H0: LSMean(i)=LSMean(j)Dependent Variable: Gdp_mill_eur",,,,
+"i/j","1","2","3","4"
+"1",,0.0002,"<.0001",0.7464
+"2",0.0002,,"<.0001","<.0001"
+"3","<.0001","<.0001",,"<.0001"
+"4",0.7464,"<.0001","<.0001",
+

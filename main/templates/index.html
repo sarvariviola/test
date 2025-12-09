@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 {% load static %}
+{% load dict_filters %}
+
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statisztikai Elemzés Dashboard</title>
+    <title>Sárvári Viola</title>
 
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'main/style.css' %}" rel="stylesheet">
 
     <style>
-        /* Kis extra, hogy a táblázat jobban nézzen ki */
-        .card-value { font-size: 2rem; font-weight: bold; }
+        .value { font-size: 2rem; font-weight: bold; }
+        .normality-result { color: #d9d9d9; }
+        .normality-title { color: white; }
     </style>
 </head>
+
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar navbar-dark mb-0" style="background-color: #001f3f;">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-        <a class="navbar-brand text-white text-wrap" href="#" style="font-size: 1.1rem; max-width: 80%;">
-            Ország- és régiószintű különbségek statisztikai elemzése
+        <a class="navbar-brand text-white text-wrap" style="font-size: 1.1rem; max-width: 80%;">
+            Ország- és régiószintű különbségek statisztikai elemzése Szerbiában és a szomszédos országokban
         </a>
         <span class="text-white d-none d-md-block" style="font-size: 1rem;">
             Készítette: Sárvári Viola
@@ -30,114 +32,202 @@
     </div>
 </nav>
 
+
 <div class="container-fluid">
     <div class="row">
 
-        <div class="col-md-3 sidebar p-4" style="background-color: #2a2f4a; min-height: 100vh; color: white;">
-            <h5 class="mb-4 border-bottom pb-2">Beállítások</h5>
-            
-            <form method="get">
-                
-                <div class="mb-3">
-                    <label for="szint" class="form-label">Elemzési szint</label>
-                    <select id="szint" name="szint" class="form-select">
-                        <option value="orszag">Országos összehasonlítás</option>
-                        </select>
-                </div>
+        <!-- SIDEBAR -->
+        <div class="col-md-3 sidebar">
+            <div class="sidebar-block">
+                <h5 class="sidebar-title text-center">Vezérlőpanel</h5>
 
-                <div class="mb-3">
-                    <label for="valtozo" class="form-label">Vizsgált változó</label>
-                    <select id="valtozo" name="valtozo" class="form-select" onchange="this.form.submit()">
-                        
-                        <option value="Gdp_mill_eur" {% if selected_var == 'Gdp_mill_eur' %}selected{% endif %}>
-                            GDP (Millió EUR)
-                        </option>
-                        
-                        <option value="Inflation_Rate" {% if selected_var == 'Inflation_Rate' %}selected{% endif %}>
-                            Infláció (%)
-                        </option>
-                        
-                        <option value="Wages" {% if selected_var == 'Wages' %}selected{% endif %}>
-                            Bérek
-                        </option>
-                        
-                        </select>
-                </div>
+                <!-- 1) Elemzési szint -->
+                <form method="get">
 
-                <noscript>
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Frissítés</button>
-                </noscript>
-            </form>
+                    <label class="sidebar-label">Elemzési szint</label>
+
+                    <div class="sidebar-option">
+                        <input type="radio" name="szint" value="orszag"
+                               {% if level == 'orszag' %}checked{% endif %}>
+                        <span>Ország</span>
+                    </div>
+
+                    <div class="sidebar-option">
+                        <input type="radio" name="szint" value="regio"
+                               {% if level == 'regio' %}checked{% endif %}>
+                        <span>Régió</span>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-3">Szűrés</button>
+                </form>
+
+
+                <!-- 2) Változó választó -->
+                {% if level %}
+                <form method="get" class="mt-4">
+
+                    <input type="hidden" name="szint" value="{{ level }}">
+
+                    <label class="sidebar-label mt-3">Válassz változót</label>
+
+                    <select name="valtozo" class="sidebar-select">
+                        {% for v in variables %}
+                            <option value="{{ v }}" {% if selected_var == v %}selected{% endif %}>
+                                {{ DISPLAY_NAMES|get_item:v|default:v }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button class="btn btn-success w-100 mt-3">Szűrés</button>
+
+                </form>
+                {% endif %}
+
+            </div>
         </div>
 
-        <div class="col-md-9 p-4 bg-light">
-            
+
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-9 p-4">
+
+            {% if selected_var %}
+
+            <!-- Cím -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-dark">Eredmények: <span class="text-primary">{{ selected_var }}</span></h2>
+                <h2 class="text-white">
+                    Eredmények: <span class="text-primary">{{ display_var }}</span>
+                </h2>
             </div>
 
+
+            <!-- ANOVA kártyák -->
+            {% if stats.anova %}
             <div class="row mb-4">
+
+                <!-- F érték -->
                 <div class="col-md-6">
-                    <div class="card text-white bg-primary mb-3 shadow">
-                        <div class="card-header">ANOVA F-érték</div>
+                    <div class="stat-card shadow">
+                        <h6>ANOVA F-érték</h6>
+                        <p class="value">{{ stats.anova.f_value }}</p>
+                        <small>A csoportok közötti eltérés mértéke.</small>
+                    </div>
+                </div>
+
+                <!-- p-érték → csak bal oldali csík változik -->
+                <div class="col-md-6">
+                    <div class="stat-card shadow 
+                        {% if stats.anova.p_value == '<.0001' or stats.anova.p_float < 0.05 %}
+                            stat-border-good
+                        {% else %}
+                            stat-border-bad
+                        {% endif %}
+                    ">
+                        <h6>Szignifikancia (p-érték)</h6>
+                        <p class="value">{{ stats.anova.p_value }}</p>
+
+                        {% if stats.anova.p_value == "<.0001" %}
+                            <small class="text-success">Erősen szignifikáns különbség!</small>
+                        {% elif stats.anova.p_float < 0.05 %}
+                            <small class="text-success">Szignifikáns különbség.</small>
+                        {% else %}
+                            <small class="text-danger">Nem szignifikáns.</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            {% endif %}
+
+
+            <!-- Normalitás -->
+            {% if stats.normality %}
+                {% if stats.all_normal %}
+                    <div class="alert alert-success">
+                        A normalitási feltételek teljesülnek.
+                        <strong>Az ANOVA eredményei megbízhatóak.</strong>
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger">
+                        Több ország/régió nem normális eloszlású.
+                        <strong>Az ANOVA eredményei bizonytalanok.</strong>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+
+            <!-- Normalitás + Ábra -->
+            <div class="row">
+
+                <!-- Normalitás (lista) -->
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-dark text-white">Normalitás vizsgálat (Shapiro–Wilk)</div>
+
                         <div class="card-body">
-                            <p class="card-value">{{ stats.f_value|default:"-" }}</p>
-                            <p class="card-text small">A csoportok közötti eltérés mértéke.</p>
+                            {% if stats.normality %}
+                                <ul class="list-group">
+                                    {% for item in stats.normality %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                        <div>
+                                            <strong class="normality-title">
+                                                {% if item.country %}
+                                                    {{ item.country }}
+                                                {% else %}
+                                                    {{ item.region }}
+                                                {% endif %}
+                                            </strong><br>
+
+                                            <small class="normality-result">
+                                                W = {{ item.w }} • p = {{ item.p }}
+                                            </small>
+                                        </div>
+
+                                        {% if item.normal %}
+                                            <span class="badge bg-success rounded-pill">Normális</span>
+                                        {% else %}
+                                            <span class="badge bg-danger rounded-pill">Nem normális</span>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+
+                            {% else %}
+                                <p class="text-muted">Ehhez a változóhoz nincs normalitási adat.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Ábra -->
                 <div class="col-md-6">
-                    <div class="card text-white bg-success mb-3 shadow">
-                        <div class="card-header">Szignifikancia (P-érték)</div>
-                        <div class="card-body">
-                            <p class="card-value">{{ stats.p_value|default:"-" }}</p>
-                            <p class="card-text small">
-                                {% if stats.p_value == "<.0001" %}
-                                    Erősen szignifikáns különbség!
-                                {% else %}
-                                    Valószínűségi érték.
-                                {% endif %}
-                            </p>
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-secondary text-white">Eredmények Ábrája</div>
+                        <div class="card-body text-center">
+
+                            {% if image_path %}
+                                <img src="{% static image_path %}"
+                                     class="img-fluid rounded shadow"
+                                     style="max-width: 100%; height: auto;">
+                            {% else %}
+                                <p class="text-muted">Nincs elérhető ábra ehhez a változóhoz.</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
+
             </div>
 
-            <h4 class="text-dark mt-4">Országonkénti Átlagok (Least Squares Means)</h4>
-            <div class="table-responsive shadow-sm">
-                <table class="table table-striped table-hover mt-2">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Ország / Csoport</th>
-                            <th class="text-end">Átlagérték ({{ selected_var }})</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in stats.means %}
-                        <tr>
-                            <td><strong>{{ row.country }}</strong></td>
-                            <td class="text-end">{{ row.mean }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="2" class="text-center py-4 text-muted">
-                                <em>Nincs megjeleníthető adat ehhez a változóhoz, vagy hiba történt a fájl olvasásakor.</em>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            {% endif %}
 
         </div>
 
     </div>
 </div>
 
-<script 
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

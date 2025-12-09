@@ -1,14 +1,143 @@
+:root {
+    --primary: #3B82F6;
+    --success: #10B981;
+    --dark-bg: #0F172A;
+    --sidebar-bg: #1E293B;
+    --card-bg: rgba(255,255,255,0.05);
+    --text-light: #CBD5E1;
+}
+
 body {
-    background-color: #1b1e2f; 
-    color: #fff;
+    background-color: #1b1e2f;
+    color: white;
 }
+
+/* ----- SIDEBAR ----- */
 .sidebar {
-    background-color: #2a2f4a;
+    background-color: var(--sidebar-bg);
     min-height: 100vh;
+    padding: 30px 20px;
+    box-shadow: inset -1px 0 0 rgba(255,255,255,0.05);
 }
-.sidebar label {
-    font-weight: bold;
+
+.sidebar-block {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
-.sidebar select, .sidebar input {
-     margin-bottom: 1rem;
+
+.sidebar-title {
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.sidebar-label {
+    color: var(--text-light);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.sidebar-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 7px 0;
+    color: white;
+    cursor: pointer;
+    padding: 5px 0;
+}
+
+.sidebar-option:hover {
+    color: var(--primary);
+}
+
+.sidebar-select {
+    width: 100%;
+    background-color: #0f172a;
+    color: white;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.sidebar-select:hover {
+    border-color: var(--primary);
+}
+
+/* ----- CARD ----- */
+.card {
+    background-color: rgba(255,255,255,0.05) !important;
+    color: white !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+/* ----- STAT KÁRTYÁK ----- */
+.stat-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(8px);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+/* ---- ÚJ: csak a bal oldali vonal változik ---- */
+.stat-border-good {
+    border-left: 6px solid #10B981 !important;
+}
+
+.stat-border-bad {
+    border-left: 6px solid #EF4444 !important;
+}
+
+/* LIST GROUP */
+.list-group-item {
+    background-color: rgba(255,255,255,0.05) !important;
+    color: white !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* TABLE */
+.table {
+    color: white !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+.btn-primary {
+    background: var(--primary) !important;
+    border: none !important;
+    padding: 10px 20px;
+    border-radius: 10px !important;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: #2563EB !important;
+}
+
+.sidebar-title {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
 }

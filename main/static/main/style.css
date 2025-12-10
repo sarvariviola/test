@@ -12,6 +12,38 @@ body {
     color: white;
 }
 
+/* ----- RADIO KÁRTYÁK ----- */
+
+.radio-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.radio-card {
+    display: block !important;
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    color: white;
+}
+
+.radio-card:hover {
+    background: rgba(255,255,255,0.10);
+    border-color: var(--primary);
+}
+
+.radio-hidden:checked + .radio-card {
+    border-color: var(--primary);
+    background: rgba(59,130,246,0.25);
+    box-shadow: 0 0 8px rgba(59,130,246,0.4);
+}
+
 /* ----- SIDEBAR ----- */
 .sidebar {
     background-color: var(--sidebar-bg);
@@ -28,10 +60,10 @@ body {
 }
 
 .sidebar-title {
-    color: white;
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    font-weight: 600;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
 }
 
 .sidebar-label {
@@ -40,20 +72,7 @@ body {
     font-size: 0.9rem;
 }
 
-.sidebar-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 7px 0;
-    color: white;
-    cursor: pointer;
-    padding: 5px 0;
-}
-
-.sidebar-option:hover {
-    color: var(--primary);
-}
-
+/* SELECT */
 .sidebar-select {
     width: 100%;
     background-color: #0f172a;
@@ -61,15 +80,9 @@ body {
     padding: 10px;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
-    margin-top: 8px;
-    cursor: pointer;
 }
 
-.sidebar-select:hover {
-    border-color: var(--primary);
-}
-
-/* ----- CARD ----- */
+/* CARD */
 .card {
     background-color: rgba(255,255,255,0.05) !important;
     color: white !important;
@@ -78,13 +91,12 @@ body {
     backdrop-filter: blur(6px) !important;
 }
 
-/* ----- STAT KÁRTYÁK ----- */
+/* STAT CARD */
 .stat-card {
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
     padding: 20px;
     backdrop-filter: blur(8px);
-    color: white;
     border: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -94,7 +106,6 @@ body {
     margin-bottom: 5px;
 }
 
-/* ---- ÚJ: csak a bal oldali vonal változik ---- */
 .stat-border-good {
     border-left: 6px solid #10B981 !important;
 }
@@ -103,24 +114,11 @@ body {
     border-left: 6px solid #EF4444 !important;
 }
 
-/* LIST GROUP */
+/* LIST ITEMS */
 .list-group-item {
     background-color: rgba(255,255,255,0.05) !important;
-    color: white !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
-}
-
-/* TABLE */
-.table {
     color: white !important;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255,255,255,0.05) !important;
-}
-
-.table-hover tbody tr:hover {
-    background-color: rgba(255,255,255,0.1) !important;
 }
 
 .btn-primary {
@@ -128,16 +126,4 @@ body {
     border: none !important;
     padding: 10px 20px;
     border-radius: 10px !important;
-    font-weight: 600;
-}
-
-.btn-primary:hover {
-    background: #2563EB !important;
-}
-
-.sidebar-title {
-    text-align: center;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    margin-bottom: 20px;
 }

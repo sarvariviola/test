@@ -10,12 +10,6 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'main/style.css' %}" rel="stylesheet">
-
-    <style>
-        .value { font-size: 2rem; font-weight: bold; }
-        .normality-result { color: #d9d9d9; }
-        .normality-title { color: white; }
-    </style>
 </head>
 
 <body>
@@ -33,6 +27,77 @@
 </nav>
 
 
+<!-- --------------------------- -->
+<!-- 1) KEZDŐKÁRTYA: nincs szint -->
+<!-- --------------------------- -->
+
+{% if not level %}
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+        <h3 class="text-center mb-3">Válassz elemzési szintet</h3>
+
+        <hr style="border-color: rgba(255,255,255,0.15); margin-top: -5px; margin-bottom: 20px;">
+
+        <form method="get">
+            <div class="mb-3">
+                <input type="radio" name="szint" value="orszag" id="orszag">
+                <label for="orszag">Ország szintű elemzés</label>
+            </div>
+
+            <div class="mb-3">
+                <input type="radio" name="szint" value="regio" id="regio">
+                <label for="regio">Régió szintű elemzés</label>
+            </div>
+
+            <button class="btn btn-primary w-100 mt-2">Tovább</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endif %}
+
+
+
+<!-- ----------------------------------------------------- -->
+<!-- 2) MÁSODIK KÁRTYA: van szint, de nincs változó -->
+<!-- ----------------------------------------------------- -->
+
+{% if level and not selected_var %}
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card shadow p-4" style="max-width: 450px; width: 100%;">
+        <h3 class="text-center mb-3">
+            <div>Elemzési szint:</div>
+            <div class="text-primary" style="font-size: 1.8rem; font-weight: 600;">
+                {% if level == "orszag" %}Ország{% else %}Régió{% endif %}
+            </div>
+        </h3>
+
+        <form method="get">
+            <input type="hidden" name="szint" value="{{ level }}">
+
+            <label class="mb-2">Válassz változót</label>
+            <select name="valtozo" class="form-select mb-3">
+                {% for v in variables %}
+                    <option value="{{ v }}">{{ DISPLAY_NAMES|get_item:v|default:v }}</option>
+                {% endfor %}
+            </select>
+
+            <button class="btn btn-success w-100">Elemzés indítása</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
+
+<!-- ------------------------------- -->
+<!-- 3) TELJES DASHBOARD -->
+<!-- ------------------------------- -->
+
+{% if selected_var %}
 <div class="container-fluid">
     <div class="row">
 
@@ -41,31 +106,28 @@
             <div class="sidebar-block">
                 <h5 class="sidebar-title text-center">Vezérlőpanel</h5>
 
-                <!-- 1) Elemzési szint -->
+                <!-- Elemzési szint -->
                 <form method="get">
 
-                    <label class="sidebar-label">Elemzési szint</label>
+                    <label class="sidebar-label d-block mb-2">Elemzési szint</label>
 
-                    <div class="sidebar-option">
-                        <input type="radio" name="szint" value="orszag"
+                    <div class="mb-2">
+                        <input type="radio" name="szint" value="orszag" id="side_orszag"
                                {% if level == 'orszag' %}checked{% endif %}>
-                        <span>Ország</span>
+                        <label for="side_orszag">Ország</label>
                     </div>
 
-                    <div class="sidebar-option">
-                        <input type="radio" name="szint" value="regio"
+                    <div class="mb-2">
+                        <input type="radio" name="szint" value="regio" id="side_regio"
                                {% if level == 'regio' %}checked{% endif %}>
-                        <span>Régió</span>
+                        <label for="side_regio">Régió</label>
                     </div>
 
                     <button class="btn btn-primary w-100 mt-3">Szűrés</button>
                 </form>
 
-
-                <!-- 2) Változó választó -->
-                {% if level %}
+                <!-- Változó választó -->
                 <form method="get" class="mt-4">
-
                     <input type="hidden" name="szint" value="{{ level }}">
 
                     <label class="sidebar-label mt-3">Válassz változót</label>
@@ -79,33 +141,75 @@
                     </select>
 
                     <button class="btn btn-success w-100 mt-3">Szűrés</button>
-
                 </form>
-                {% endif %}
 
             </div>
         </div>
 
 
-
         <!-- MAIN CONTENT -->
         <div class="col-md-9 p-4">
 
-            {% if selected_var %}
+            <!-- CÍM -->
+            <h2 class="text-white mb-4">
+                Eredmények: <span class="text-primary">{{ display_var }}</span>
+            </h2>
 
-            <!-- Cím -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-white">
-                    Eredmények: <span class="text-primary">{{ display_var }}</span>
-                </h2>
+            <!-- NORMALITÁS – FELÜL -->
+            {% if stats.normality %}
+                {% if stats.all_normal %}
+                    <div class="alert alert-success mb-4">
+                        A normalitási feltételek teljesülnek.
+                        <strong>Az ANOVA eredményei megbízhatóak.</strong>
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger mb-4">
+                        Több ország/régió nem normális eloszlású.
+                        <strong>Az ANOVA eredményei bizonytalanok.</strong>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- NORMALITÁSI LISTA -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-dark text-white">Normalitás vizsgálat (Shapiro–Wilk)</div>
+
+                <div class="card-body">
+                    {% if stats.normality %}
+                        <ul class="list-group">
+                            {% for item in stats.normality %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                <div>
+                                    <strong class="normality-title">
+                                        {% if item.country %}{{ item.country }}{% else %}{{ item.region }}{% endif %}
+                                    </strong>
+                                    <br>
+                                    <small class="normality-result">
+                                        W = {{ item.w }} • p = {{ item.p }}
+                                    </small>
+                                </div>
+
+                                {% if item.normal %}
+                                    <span class="badge bg-success rounded-pill">Normális</span>
+                                {% else %}
+                                    <span class="badge bg-danger rounded-pill">Nem normális</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                    {% else %}
+                        <p class="text-muted">Ehhez a változóhoz nincs adat.</p>
+                    {% endif %}
+                </div>
             </div>
 
 
-            <!-- ANOVA kártyák -->
+            <!-- ANOVA KÁRTYÁK -->
             {% if stats.anova %}
             <div class="row mb-4">
 
-                <!-- F érték -->
                 <div class="col-md-6">
                     <div class="stat-card shadow">
                         <h6>ANOVA F-érték</h6>
@@ -114,7 +218,6 @@
                     </div>
                 </div>
 
-                <!-- p-érték → csak bal oldali csík változik -->
                 <div class="col-md-6">
                     <div class="stat-card shadow 
                         {% if stats.anova.p_value == '<.0001' or stats.anova.p_float < 0.05 %}
@@ -127,9 +230,9 @@
                         <p class="value">{{ stats.anova.p_value }}</p>
 
                         {% if stats.anova.p_value == "<.0001" %}
-                            <small class="text-success">Erősen szignifikáns különbség!</small>
+                            <small class="text-success">Erősen szignifikáns!</small>
                         {% elif stats.anova.p_float < 0.05 %}
-                            <small class="text-success">Szignifikáns különbség.</small>
+                            <small class="text-success">Szignifikáns.</small>
                         {% else %}
                             <small class="text-danger">Nem szignifikáns.</small>
                         {% endif %}
@@ -140,91 +243,23 @@
             {% endif %}
 
 
-            <!-- Normalitás -->
-            {% if stats.normality %}
-                {% if stats.all_normal %}
-                    <div class="alert alert-success">
-                        A normalitási feltételek teljesülnek.
-                        <strong>Az ANOVA eredményei megbízhatóak.</strong>
-                    </div>
-                {% else %}
-                    <div class="alert alert-danger">
-                        Több ország/régió nem normális eloszlású.
-                        <strong>Az ANOVA eredményei bizonytalanok.</strong>
-                    </div>
-                {% endif %}
-            {% endif %}
+            <!-- ÁBRA -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-secondary text-white">Eredmények Ábrája</div>
+                <div class="card-body text-center">
 
-
-            <!-- Normalitás + Ábra -->
-            <div class="row">
-
-                <!-- Normalitás (lista) -->
-                <div class="col-md-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header bg-dark text-white">Normalitás vizsgálat (Shapiro–Wilk)</div>
-
-                        <div class="card-body">
-                            {% if stats.normality %}
-                                <ul class="list-group">
-                                    {% for item in stats.normality %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-
-                                        <div>
-                                            <strong class="normality-title">
-                                                {% if item.country %}
-                                                    {{ item.country }}
-                                                {% else %}
-                                                    {{ item.region }}
-                                                {% endif %}
-                                            </strong><br>
-
-                                            <small class="normality-result">
-                                                W = {{ item.w }} • p = {{ item.p }}
-                                            </small>
-                                        </div>
-
-                                        {% if item.normal %}
-                                            <span class="badge bg-success rounded-pill">Normális</span>
-                                        {% else %}
-                                            <span class="badge bg-danger rounded-pill">Nem normális</span>
-                                        {% endif %}
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-
-                            {% else %}
-                                <p class="text-muted">Ehhez a változóhoz nincs normalitási adat.</p>
-                            {% endif %}
-                        </div>
-                    </div>
+                    {% if image_path %}
+                        <img src="{% static image_path %}" class="img-fluid rounded shadow">
+                    {% else %}
+                        <p class="text-muted">Nincs elérhető ábra.</p>
+                    {% endif %}
                 </div>
-
-                <!-- Ábra -->
-                <div class="col-md-6">
-                    <div class="card shadow mb-4">
-                        <div class="card-header bg-secondary text-white">Eredmények Ábrája</div>
-                        <div class="card-body text-center">
-
-                            {% if image_path %}
-                                <img src="{% static image_path %}"
-                                     class="img-fluid rounded shadow"
-                                     style="max-width: 100%; height: auto;">
-                            {% else %}
-                                <p class="text-muted">Nincs elérhető ábra ehhez a változóhoz.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            {% endif %}
-
         </div>
-
     </div>
 </div>
+{% endif %}
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

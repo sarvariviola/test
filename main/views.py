@@ -59,6 +59,7 @@ DISPLAY_NAMES = {
     "fogy_ruha_ezer": "A háztartások végső fogyasztási kiadásai ruházatra és lábbelire ",
     "fogy_transz_ezer": "A háztartások végső fogyasztási kiadásai transzportra ",
     "gdp_me": "Bruttó hazai termék (GDP)",
+    "gdp_me_ezer": "Bruttó hazai termék (GDP)",
     "kivand": "Kivándorlók száma (emigráció)",
     "hal_sz": "Halálozások száma",
     "nep_jan1": "Népesség száma január 1-én",
@@ -68,6 +69,12 @@ DISPLAY_NAMES = {
     "nett_eur": "Nettó jövedelem euróban kifejezve",
 }
 
+keyword_list = [
+    "Szerbia", "Magyarország", "Románia", "Régiók", "GDP",
+    "Foglalkoztatás", "Fejlettség", "Demográfia", "Vajdaság",
+    "Dél-Alföld", "Bánát", "Varianciaanalízis", "Elemzés", "Statisztika",
+    "ANOVA", "Normalitás", "Shapiro–Wilk", "Gazdaság", "Régiók", "Országok", 
+]
 
 # -------------------------------
 # PÁROSÍTOTT VÁLTOZÓK
@@ -273,4 +280,5 @@ def index(request):
         "paired_display": paired_display,
         "paired_anova": paired_anova,
         "paired_image_path": paired_image_path,
+         "keyword_list": keyword_list,
     })

@@ -5,6 +5,6 @@ from django.urls import path
 from .views import dashboard_view 
 
 urlpatterns = [
-    # Itt rendeljük hozzá a főoldalhoz ('') az új nézetet
+    # új nézet hozzáadása
     path('', dashboard_view, name='dashboard'),
 ]

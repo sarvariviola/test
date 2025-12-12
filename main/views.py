@@ -8,9 +8,7 @@ from django.conf import settings
 # VÁLTOZÓK SZÉP ELNEVEZÉSEI
 # -------------------------------
 DISPLAY_NAMES = {
-    "Gdp_mill_eur": "Bruttó hazai termék (millió EUR)",
-    "Gdp_ezer_fore": "GDP egy főre (ezer EUR)",
-    "AVFK": "Államháztartás végső fogyasztási kiadásai (ÁVFK)",
+    "all_fogy": "Államháztartás végső fogyasztási kiadásai",
     "AVFK_ezer_fore": "Államháztartás végső fogyasztási kiadásai (ezer főre)",
     "Haztartasok_fogy_kiadasa": "Háztartások végső fogyasztási kiadásai",
     "Haztartas_fogy_kiadas_ezer_fore": "Háztartások fogyasztási kiadásai (ezer főre)",
@@ -37,7 +35,7 @@ DISPLAY_NAMES = {
     "Kiadas_egeszseg": "Háztartási kiadások egészségre",
     "Kiadas_transzport": "Háztartási kiadások transzportra",
     "Kiadas_oktatas": "Háztartási kiadások oktatásra",
-    "Kiadas_etterem_szallas": "Háztartási kiadások étteremre és szállásra",
+    "Kiadas_etterem_szallas": "Háztartási kiadások étteremre és szállásokra",
     "Kiadas_etterem_szallas_ezer_fo": "Háztartási kiadások étteremre és szállásra (ezer főre)",
     "Haztartasi_megtak_rata": "Háztartási megtakarítási ráta (%)",
     "Mezogazdasagi_ter": "Mezőgazdasági terület (hektár)",
@@ -49,15 +47,17 @@ DISPLAY_NAMES = {
     "fogy_alk": "A háztartások végső fogyasztási kiadásai alkoholos italokra, dohányra, kábítószerre",
     "fogy_egesz": "A háztartások végső fogyasztási kiadásai egészségre ",
     "fogy_etter": "A háztartások végső fogyasztási kiadásai éttermekre és szállásora",
-    "fogy_okt": "A háztartások végső fogyasztási kiadásai oktatása ",
+    "fogy_okt": "A háztartások végső fogyasztási kiadásai oktatásra ",
     "fogy_ruha": "A háztartások végső fogyasztási kiadásai ruházatra és lábbelire ",
-    "fogy_transz": "A háztartások végső fogyasztási kiadásai transzportra ",
+    "fogy_transz": "A háztartások végső fogyasztási kiadásai közlekedésre ",
     "fogy_alk_ezer": "A háztartások végső fogyasztási kiadásai alkoholos italokra, dohányra, kábítószerre",
     "fogy_egesz_ezer": "A háztartások végső fogyasztási kiadásai egészségre ",
     "fogy_etter_ezer": "A háztartások végső fogyasztási kiadásai éttermekre és szállásora",
     "fogy_okt_ezer": "A háztartások végső fogyasztási kiadásai oktatása ",
     "fogy_ruha_ezer": "A háztartások végső fogyasztási kiadásai ruházatra és lábbelire ",
-    "fogy_transz_ezer": "A háztartások végső fogyasztási kiadásai transzportra ",
+    "fogy_transz_ezer": "A háztartások végső fogyasztási kiadásai közlekedésre ",
+    "fogy_elm": "A háztartások végső fogyasztási kiadásai élelmiszerre",
+    "fogy_elm_ezer": "A háztartások végső fogyasztási kiadásai élelmiszerre ",
     "gdp_me": "Bruttó hazai termék (GDP)",
     "gdp_me_ezer": "Bruttó hazai termék (GDP)",
     "kivand": "Kivándorlók száma (emigráció)",
@@ -67,13 +67,28 @@ DISPLAY_NAMES = {
     "nep_valt_ar": "Teljes népesség változásának nyers mértéke",
     "nok_kora": "Nők átlagéletkora a gyermek születésekor",
     "nett_eur": "Nettó jövedelem euróban kifejezve",
+    "tfr": "Teljes termékenységi ráta",
+    "bevand": "Bevándorlók száma",
+    "bevand_ezer": "Bevándorlók száma",
+    "kivand": "Kivándorlók száma",
+    "fogy_ossz": "A háztartások végső fogyasztási kiadásai",
+    "fogy_ossz_ezer": "A háztartások végső fogyasztási kiadásai",
+    "hal_ar": "Halálozási arány",
+    "szul_ar": "Születési arány",
+    "megtak_rata": "Háztartási megtakarítási ráta",
+    "inflacio": "Inflációs ráta",
+    "mezoter": "Mezőazdasági hasznosítású terület",
+    "munkanelk": "Teljes munkanélküliségi ráta",
+    "nep_term": "A népesség természetes változása",
+    
+
 }
 
 keyword_list = [
     "Szerbia", "Magyarország", "Románia", "Régiók", "GDP",
     "Foglalkoztatás", "Fejlettség", "Demográfia", "Vajdaság",
     "Dél-Alföld", "Bánát", "Varianciaanalízis", "Elemzés", "Statisztika",
-    "ANOVA", "Normalitás", "Shapiro–Wilk", "Gazdaság", "Régiók", "Országok",
+    "ANOVA", "Normalitás", "Shapiro–Wilk", "Gazdaság", "Régiók", "Országok","Bulgária", "Komogorov-Smirnov",
 ]
 
 # -------------------------------
@@ -82,11 +97,21 @@ keyword_list = [
 PAIRED_VARS = {
     "gdp_me": ["gdp_me", "gdp_me_ezer"],
     "fogy_alk": ["fogy_alk", "fogy_alk_ezer"],
+    "fogy_ossz": ["fogy_ossz", "fogy_ossz_ezer"],
     "fogy_egesz": ["fogy_egesz", "fogy_egesz_ezer"],
     "fogy_etter": ["fogy_etter", "fogy_etter_ezer"],
     "fogy_okt": ["fogy_okt", "fogy_okt_ezer"],
     "fogy_ruha": ["fogy_ruha", "fogy_ruha_ezer"],
     "fogy_transz": ["fogy_transz", "fogy_transz_ezer"],
+    "fogy_elm": ["fogy_elm", "fogy_elm_ezer"],
+    "all_fogy": ["all_fogy", "all_fogy_ezer"],
+    "kivand": ["kivand_ezer", "kivand_ezer"],
+    "bevand": ["bevand_ezer", "bevand_ezer"],
+    "mezoter": ["mezoter", "mezoter_euer"],
+    "elv_szul": ["elv_szul", "szul_ar"],
+    "hal_sz": ["hal_sz", "hal_ar"],
+
+
 }
 
 
@@ -152,7 +177,7 @@ def index(request):
             p_val = None
 
         normality_list.append({
-            key_name: getattr(row, key_name),
+            "name": getattr(row, key_name),
             "w": row.sw_w,
             "p": raw_p,
             "normal": (p_val is not None and p_val > 0.05),
@@ -220,6 +245,11 @@ def index(request):
             pass
 
         paired_image_path = f"main/plots/{level}_{paired_var}.png"
+
+    print("SELECTED_VAR =", selected_var)
+    print("LEVEL =", level)
+    print("VARIABLES =", variables)
+
 
     return render(request, "index.html", {
         "level": level,

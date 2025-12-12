@@ -2,19 +2,29 @@ from django.core.management.base import BaseCommand
 from main.models import AnovaTestCountry
 import csv
 
+
 class Command(BaseCommand):
-    help = "Import ANOVA F and p values from CSV into the database"
+    help = "ANOVA + Levene eredmények betöltése CSV-ből az ország szintű táblába"
 
     def add_arguments(self, parser):
-        parser.add_argument("csv_file", type=str, help="Path to ANOVA CSV file")
+        parser.add_argument(
+            "csv_file",
+            type=str,
+            help="Az ANOVA CSV fájl elérési útvonala"
+        )
 
     def handle(self, *args, **options):
         csv_path = options["csv_file"]
 
         def to_float(value):
+            if value is None:
+                return None
+            value = value.strip()
+            if value == "":
+                return None
             try:
                 return float(value.replace(",", "."))
-            except:
+            except ValueError:
                 return None
 
         created = 0
@@ -23,16 +33,17 @@ class Command(BaseCommand):
             reader = csv.DictReader(f, delimiter=";")
 
             for row in reader:
-
-                obj = AnovaTestCountry(
+                AnovaTestCountry.objects.create(
                     variable=row["variable"],
-                    f_value=to_float(row["f_value"]),
-                    p_value=row["p_value"],
+                    anova_f=to_float(row.get("anova_f")),
+                    anova_p=row.get("anova_p"),      # 👈 STRING, <.0001 MEGMARAD
+                    levene_f=to_float(row.get("levene_f")),
+                    levene_p=row.get("levene_p"),    # 👈 STRING, <.0001 MEGMARAD
                 )
-
-                obj.save()
                 created += 1
 
         self.stdout.write(
-            self.style.SUCCESS(f"Siker! {created} ANOVA rekord betöltve adatbázisba.")
+            self.style.SUCCESS(
+                f"Siker! {created} országos ANOVA + Levene rekord betöltve."
+            )
         )

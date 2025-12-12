@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 text = cur.strip()
 
                 # Country line example: "Orszag = Magyarország"
-                if country is None and text.startswith("Orszag = "):
+                if country is None and text.startswith("orszag = "):
                     country = text.split("=", 1)[1].strip()
 
                 # Variable line example: "Variable: GDP"

@@ -219,9 +219,7 @@
                             {% for item in stats.normality %}
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong>
-                                            {% if item.country %}{{ item.country }}{% else %}{{ item.region }}{% endif %}
-                                        </strong>
+                                        <strong>{{ item.name }}</strong>
                                         <br>
                                         <small>W = {{ item.w }} • p = {{ item.p }}</small>
                                     </div>

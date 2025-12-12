@@ -72,7 +72,7 @@
 
 <!-- 2) MÁSODIK KÉPERNYŐ – SZINT VAN, VÁLTOZÓ MÉG NINCS -->
 {% if level and not selected_var %}
-<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+<div class="d-flex justify-content-center align-items-center selection-screen">
     <div class="card shadow p-4" style="max-width: 450px; width: 100%;">
 
         <h3 class="text-center mb-3">
@@ -104,10 +104,16 @@
 <!-- 3) TELJES DASHBOARD -->
 {% if selected_var %}
 <div class="container-fluid">
+
+    <!-- Mobile sidebar toggle button -->
+    <button class="btn btn-primary d-md-none mobile-sidebar-toggle" id="sidebarToggle" type="button">
+        <span>☰</span> Vezérlőpanel
+    </button>
+
     <div class="row">
 
         <!-- SIDEBAR -->
-        <div class="col-md-3 sidebar">
+        <div class="col-md-3 sidebar" id="sidebar">
             <div class="sidebar-block">
                 <h5 class="sidebar-title text-center">Vezérlőpanel</h5>
 
@@ -388,6 +394,28 @@ document.addEventListener("DOMContentLoaded", () => {
         kw.style.fontSize = size + "rem";
         kw.style.transform = `rotate(${rot}deg)`;
     });
+
+    // Mobile sidebar toggle functionality
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const sidebar = document.getElementById("sidebar");
+
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("sidebar-visible");
+            const isVisible = sidebar.classList.contains("sidebar-visible");
+            sidebarToggle.innerHTML = isVisible ? '<span>✕</span> Bezár' : '<span>☰</span> Vezérlőpanel';
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener("click", (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove("sidebar-visible");
+                    sidebarToggle.innerHTML = '<span>☰</span> Vezérlőpanel';
+                }
+            }
+        });
+    }
 });
 </script>
 

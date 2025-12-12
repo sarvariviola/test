@@ -3,18 +3,27 @@ from main.models import AnovaTestRegion
 import csv
 
 class Command(BaseCommand):
-    help = "Import ANOVA F és p értékek betöltése CSV-ből a régió szintű táblába"
+    help = "ANOVA + Levene eredmények betöltése CSV-ből a régió szintű táblába"
 
     def add_arguments(self, parser):
-        parser.add_argument("csv_file", type=str, help="Az ANOVA CSV fájl elérési útvonala")
+        parser.add_argument(
+            "csv_file",
+            type=str,
+            help="Az ANOVA CSV fájl elérési útvonala"
+        )
 
     def handle(self, *args, **options):
         csv_path = options["csv_file"]
 
         def to_float(value):
+            if value is None:
+                return None
+            value = value.strip()
+            if value == "":
+                return None
             try:
                 return float(value.replace(",", "."))
-            except:
+            except ValueError:
                 return None
 
         created = 0
@@ -23,14 +32,17 @@ class Command(BaseCommand):
             reader = csv.DictReader(f, delimiter=";")
 
             for row in reader:
-                obj = AnovaTestRegion(
+                AnovaTestRegion.objects.create(
                     variable=row["variable"],
-                    f_value=to_float(row["f_value"]),
-                    p_value=row["p_value"],
+                    anova_f=to_float(row.get("anova_f")),
+                    anova_p=row.get("anova_p"),
+                    levene_f=to_float(row.get("levene_f")),
+                    levene_p=to_float(row.get("levene_p")),
                 )
-                obj.save()
                 created += 1
 
         self.stdout.write(
-            self.style.SUCCESS(f"Siker! {created} régiós ANOVA rekord betöltve.")
+            self.style.SUCCESS(
+                f"Siker! {created} régiós ANOVA + Levene rekord betöltve."
+            )
         )

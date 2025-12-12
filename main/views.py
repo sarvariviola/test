@@ -73,18 +73,14 @@ keyword_list = [
     "Szerbia", "Magyarország", "Románia", "Régiók", "GDP",
     "Foglalkoztatás", "Fejlettség", "Demográfia", "Vajdaság",
     "Dél-Alföld", "Bánát", "Varianciaanalízis", "Elemzés", "Statisztika",
-    "ANOVA", "Normalitás", "Shapiro–Wilk", "Gazdaság", "Régiók", "Országok", 
+    "ANOVA", "Normalitás", "Shapiro–Wilk", "Gazdaság", "Régiók", "Országok",
 ]
 
 # -------------------------------
 # PÁROSÍTOTT VÁLTOZÓK
-# Itt mondod meg, hogy ha pl. gdp_me-t választják,
-# mellette még melyik változót jelenítsük meg.
-# A kulcs legyen az, ami a combóban van.
 # -------------------------------
 PAIRED_VARS = {
-    
-    "gdp_me": ["gdp_me", "gdp_me_ezer"], 
+    "gdp_me": ["gdp_me", "gdp_me_ezer"],
     "fogy_alk": ["fogy_alk", "fogy_alk_ezer"],
     "fogy_egesz": ["fogy_egesz", "fogy_egesz_ezer"],
     "fogy_etter": ["fogy_etter", "fogy_etter_ezer"],
@@ -108,66 +104,42 @@ def index(request):
     }
 
     # -----------------------------
-    # VÁLTOZÓK LISTÁJA ORSZÁG / RÉGIÓ
+    # VÁLTOZÓK LISTÁJA
     # -----------------------------
     if level == "orszag":
-        variables = (
-            NormalityTestCountry.objects
-            .values_list("variable", flat=True)
-            .distinct()
-            .order_by("variable")
-        )
-
+        variables = NormalityTestCountry.objects.values_list("variable", flat=True).distinct().order_by("variable")
     elif level == "regio":
-        variables = (
-            NormalityTestRegion.objects
-            .values_list("variable", flat=True)
-            .distinct()
-            .order_by("variable")
-        )
+        variables = NormalityTestRegion.objects.values_list("variable", flat=True).distinct().order_by("variable")
 
-    # -----------------------------
-    # VÁLTOZÓK SZŰRÉSE: csak ahol van ANOVA vagy ábra
-    # -----------------------------
     filtered_variables = []
     for v in variables:
-
-        if level == "orszag":
-            has_anova = AnovaTestCountry.objects.filter(variable=v).exists()
-        else:
-            has_anova = AnovaTestRegion.objects.filter(variable=v).exists()
-
-        img_path = os.path.join(
-            settings.BASE_DIR,
-            "main", "static", "main", "plots",
-            f"{level}_{v}.png"
+        has_anova = (
+            AnovaTestCountry.objects.filter(variable=v).exists()
+            if level == "orszag"
+            else AnovaTestRegion.objects.filter(variable=v).exists()
         )
-        has_plot = os.path.exists(img_path)
 
-        if has_anova or has_plot:
+        img_path = os.path.join(settings.BASE_DIR, "main", "static", "main", "plots", f"{level}_{v}.png")
+        if has_anova or os.path.exists(img_path):
             filtered_variables.append(v)
 
     variables = filtered_variables
 
-    # Ha nincs kiválasztott változó → automatikusan az első
     if selected_var is None and variables:
         selected_var = variables[0]
 
-    # Szép név
     if selected_var:
         display_var = DISPLAY_NAMES.get(selected_var, selected_var)
 
-    # ------------------------------------
-    # NORMALITÁS (mindkettőre közös)
-    # ------------------------------------
+    # -----------------------------
+    # NORMALITÁS
+    # -----------------------------
     if level == "orszag" and selected_var:
         qs = NormalityTestCountry.objects.filter(variable=selected_var).order_by("country")
         key_name = "country"
-
     elif level == "regio" and selected_var:
         qs = NormalityTestRegion.objects.filter(variable=selected_var).order_by("region")
         key_name = "region"
-
     else:
         qs = []
 
@@ -175,99 +147,80 @@ def index(request):
     for row in qs:
         raw_p = row.sw_p
         try:
-            p_value = float(raw_p.replace("<", "").replace(">", "").replace(",", "."))
+            p_val = float(raw_p.replace("<", "").replace(">", "").replace(",", "."))
         except:
-            p_value = None
+            p_val = None
 
         normality_list.append({
             key_name: getattr(row, key_name),
             "w": row.sw_w,
             "p": raw_p,
-            "normal": (p_value is not None and p_value > 0.05)
+            "normal": (p_val is not None and p_val > 0.05),
         })
 
     stats["normality"] = normality_list
-    stats["all_normal"] = all(item["normal"] for item in normality_list) if normality_list else False
+    stats["all_normal"] = all(x["normal"] for x in normality_list) if normality_list else False
 
-    # ------------------------------------
-    # ANOVA – FŐ VÁLTOZÓ
-    # ------------------------------------
-    model = None
-    if selected_var:
-        if level == "orszag":
-            model = AnovaTestCountry
-        elif level == "regio":
-            model = AnovaTestRegion
+    # -----------------------------
+    # ANOVA + LEVENE – FŐ VÁLTOZÓ
+    # -----------------------------
+    model = AnovaTestCountry if level == "orszag" else AnovaTestRegion
 
-    if model:
+    try:
+        a = model.objects.get(variable=selected_var)
+        raw_p = a.anova_p
         try:
-            a = model.objects.get(variable=selected_var)
-            raw_p = a.p_value
-            try:
-                p_clean = float(raw_p.replace("<", "").replace(">", "").replace(",", "."))
-            except:
-                p_clean = None
+            p_clean = float(raw_p.replace("<", "").replace(">", "").replace(",", "."))
+        except:
+            p_clean = None
 
-            stats["anova"] = {
-                "f_value": a.f_value,
-                "p_value": raw_p,
-                "p_float": p_clean,
-            }
-        except model.DoesNotExist:
-            stats["anova"] = None
+        stats["anova"] = {
+            "anova_f": a.anova_f,
+            "anova_p": raw_p,
+            "p_float": p_clean,
+            "levene_f": a.levene_f,
+            "levene_p": a.levene_p,
+            "levene_ok": (a.levene_p is not None and a.levene_p > 0.05),
+        }
+    except:
+        pass
 
-    # ------------------------------------
-    # KÉP – FŐ VÁLTOZÓ
-    # ------------------------------------
-    image_path = None
-    if selected_var and level:
-        image_path = f"main/plots/{level}_{selected_var}.png"
+    image_path = f"main/plots/{level}_{selected_var}.png" if selected_var else None
 
-    # ------------------------------------
-    # PÁROSÍTOTT VÁLTOZÓ (második)
-    # ------------------------------------
+    # -----------------------------
+    # PÁROSÍTOTT VÁLTOZÓ
+    # -----------------------------
     paired_var = None
     paired_display = None
     paired_anova = None
     paired_image_path = None
 
-    pair_list = PAIRED_VARS.get(selected_var)
-    if pair_list and len(pair_list) > 1:
-        paired_var = pair_list[1]
-
+    pair = PAIRED_VARS.get(selected_var)
+    if pair:
+        paired_var = pair[1]
         paired_display = DISPLAY_NAMES.get(paired_var, paired_var)
 
-        # ANOVA a párosított változóra
-        paired_model = None
-        if level == "orszag":
-            paired_model = AnovaTestCountry
-        elif level == "regio":
-            paired_model = AnovaTestRegion
-
-        if paired_model:
+        try:
+            a2 = model.objects.get(variable=paired_var)
+            raw_p2 = a2.anova_p
             try:
-                a2 = paired_model.objects.get(variable=paired_var)
-                raw_p2 = a2.p_value
-                try:
-                    p_clean2 = float(raw_p2.replace("<", "").replace(">", "").replace(",", "."))
-                except:
-                    p_clean2 = None
+                p_clean2 = float(raw_p2.replace("<", "").replace(">", "").replace(",", "."))
+            except:
+                p_clean2 = None
 
-                paired_anova = {
-                    "f_value": a2.f_value,
-                    "p_value": raw_p2,
-                    "p_float": p_clean2,
-                }
-            except paired_model.DoesNotExist:
-                paired_anova = None
+            paired_anova = {
+                "anova_f": a2.anova_f,
+                "anova_p": raw_p2,
+                "p_float": p_clean2,
+                "levene_f": a2.levene_f,
+                "levene_p": a2.levene_p,
+                "levene_ok": (a2.levene_p is not None and a2.levene_p > 0.05),
+            }
+        except:
+            pass
 
-        # KÉP a párosított változóra
-        if level and paired_var:
-            paired_image_path = f"main/plots/{level}_{paired_var}.png"
+        paired_image_path = f"main/plots/{level}_{paired_var}.png"
 
-    # ------------------------------------
-    # RENDER
-    # ------------------------------------
     return render(request, "index.html", {
         "level": level,
         "variables": variables,
@@ -280,5 +233,5 @@ def index(request):
         "paired_display": paired_display,
         "paired_anova": paired_anova,
         "paired_image_path": paired_image_path,
-         "keyword_list": keyword_list,
+        "keyword_list": keyword_list,
     })

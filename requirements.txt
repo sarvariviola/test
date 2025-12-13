@@ -1,8 +1,13 @@
 asgiref==3.10.0
+beautifulsoup4==4.14.3
 Django==5.2.8
 django-cors-headers==4.9.0
 django-environ==0.12.0
+gunicorn==23.0.0
+packaging==25.0
 psycopg==3.2.12
 psycopg-binary==3.2.12
+soupsieve==2.8
 sqlparse==0.5.3
+typing_extensions==4.15.0
 tzdata==2025.2

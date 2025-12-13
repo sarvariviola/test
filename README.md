@@ -27,7 +27,7 @@ Sárvári Viola
 
 ### Kétszintű elemzés
 - **Országszintű elemzés**: Szerbia és szomszédos országok összehasonlítása
-- **Régiószintű elemzés**: Szerbia régióinak belső összehasonlítása
+- **Régiószintű elemzés**: Vajdaság és a szomszédos régiók összehasonlítása
 
 ### Statisztikai tesztek
 - **Shapiro-Wilk normalitási teszt**: Az adatok normális eloszlásának vizsgálata
@@ -35,7 +35,6 @@ Sárvári Viola
 - **Levene-teszt**: Szóráshomogenitás vizsgálata
 
 ### Vizualizáció
-- Interaktív grafikonok régiónkénti és országonkénti bontásban
 - Eredmények vizuális megjelenítése PNG formátumban
 
 ### Felhasználói felület
@@ -60,7 +59,7 @@ Sárvári Viola
 - Bootstrap 5.3.3
 
 ### Adatkezelés
-- CSV fájlok importálása Django management parancsokkal
+- CSV és HTML fájlok importálása Django management parancsokkal
 - Statisztikai modellek Django ORM használatával
 
 ## Telepítés
@@ -140,11 +139,15 @@ Az alkalmazás CSV fájlokból importálja az előre kiszámított statisztikai 
 
 ```bash
 # 1. Normalitási adatok importálása
+python manage.py extract_normality main/templates/sas/orszagok_normalitas_elemzes.html data/normalitas_orszag.csv
 python manage.py import_normality data/normalitas_orszag.csv
+python manage.py extract_normality main/templates/sas/regiok.html data/normalitas_regio.csv
 python manage.py import_normality_reg data/normalitas_regio.csv
 
 # 2. ANOVA adatok importálása
+python manage.py extract_anova main/templates/sas/orszagok_anova_elemzes.html data/anova_orszag.csv
 python manage.py import_anova data/anova_orszag.csv
+python manage.py extract_anova main/templates/sas/region_anova_elemzes.html data/anova_regio.csv
 python manage.py import_anova_region data/anova_regio.csv
 ```
 

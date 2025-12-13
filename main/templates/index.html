@@ -380,6 +380,8 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    // Háttér kulcsszavak véletlenszerű elhelyezése és méretezése
+    // Minden kulcsszót random pozícióba, méretbe és szögbe helyezünk a vizuális hatás érdekében
     const keywords = document.querySelectorAll(".keyword-background .kw");
     keywords.forEach(kw => {
         const x = Math.random() * 100;
@@ -393,7 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
         kw.style.transform = `rotate(${rot}deg)`;
     });
 
-    // Mobile sidebar toggle functionality
+    // Mobil sidebar megjelenítésének kezelése
+    // A hamburger menü gombbal ki/be lehet csúsztatni a sidebar-t mobil nézetben
     const sidebarToggle = document.getElementById("sidebarToggle");
     const sidebar = document.getElementById("sidebar");
 
@@ -404,7 +407,8 @@ document.addEventListener("DOMContentLoaded", () => {
             sidebarToggle.innerHTML = isVisible ? '<span>✕</span> Bezár' : '<span>☰</span> Vezérlőpanel';
         });
 
-        // Close sidebar when clicking outside on mobile
+        // Ha mobilon a sidebar-on vagy a toggle gombon kívülre kattintunk, bezárjuk a sidebar-t
+        // Ez javítja a felhasználói élményt, mivel intuitív módon működik
         document.addEventListener("click", (e) => {
             if (window.innerWidth <= 768) {
                 if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {

@@ -3,10 +3,10 @@ from main.models import NormalityTestCountry
 import csv
 
 class Command(BaseCommand):
-    help = "Import normality test results from CSV into the database"
+    help = "Normalitási teszt eredmények betöltése CSV fájlból az adatbázisba"
 
     def add_arguments(self, parser):
-        parser.add_argument("csv_file", type=str, help="Path to CSV file")
+        parser.add_argument("csv_file", type=str, help="A CSV fájl elérési útvonala")
 
     def handle(self, *args, **options):
         csv_path = options["csv_file"]

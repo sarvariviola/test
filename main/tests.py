@@ -1,3 +1,4 @@
 from django.test import TestCase
 
-# Create your tests here.
+# Tesztek elhelyezése
+# Ide kerülnek az automatizált tesztek, ha készítünk ilyeneket

@@ -1,10 +1,6 @@
 """
-WSGI config for dashboard project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
+WSGI konfigurációs fájl a dashboard projekthez.
+A WSGI callable-t elérhetővé teszi 'application' néven.
 """
 
 import os

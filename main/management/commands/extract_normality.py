@@ -3,23 +3,23 @@ from bs4 import BeautifulSoup
 import csv
 
 class Command(BaseCommand):
-    help = "Extract 'Tests for Normality' results from SAS HTML into CSV."
+    help = "Országszintű normalitási teszt eredmények kinyerése SAS HTML fájlból CSV-be"
 
     def add_arguments(self, parser):
-        parser.add_argument("html_file", type=str, help="Path to SAS HTML file")
-        parser.add_argument("csv_out", type=str, help="Path to output CSV")
+        parser.add_argument("html_file", type=str, help="A SAS HTML fájl elérési útvonala")
+        parser.add_argument("csv_out", type=str, help="A kimeneti CSV fájl elérési útvonala")
 
     def handle(self, *args, **options):
         html_path = options["html_file"]
         csv_out = options["csv_out"]
 
-        # --- Load HTML ---
+        # HTML betöltése
         with open(html_path, "r", encoding="utf-8", errors="ignore") as f:
             html = f.read()
 
         soup = BeautifulSoup(html, "html.parser")
 
-        # All "Tests for Normality" blocks
+        # Összes "Tests for Normality" blokk
         tests_headers = soup.find_all(
             string=lambda s: isinstance(s, str) and "Tests for Normality" in s
         )
@@ -27,9 +27,7 @@ class Command(BaseCommand):
         rows_data = []
 
         for th in tests_headers:
-            # ------------------------------------
-            # 1) BACKTRACK TO FIND COUNTRY + VARIABLE
-            # ------------------------------------
+            # Ország és változó név megkeresése visszafelé haladva
             cur = th
             country = None
             variable = None
@@ -43,11 +41,11 @@ class Command(BaseCommand):
 
                 text = cur.strip()
 
-                # Country line example: "Orszag = Magyarország"
+                # Ország sor példa: "Orszag = Magyarország"
                 if country is None and text.startswith("orszag = "):
                     country = text.split("=", 1)[1].strip()
 
-                # Variable line example: "Variable: GDP"
+                # Változó sor példa: "Variable: GDP"
                 if variable is None and text.startswith("Variable:"):
                     body = text[len("Variable:"):].strip()
                     if "(" in body:
@@ -55,9 +53,7 @@ class Command(BaseCommand):
                     else:
                         variable = body
 
-            # ------------------------------------
-            # 2) FIND THE TABLE ITSELF
-            # ------------------------------------
+            # A táblázat megkeresése
             table = th.parent
             while table and table.name != "table":
                 table = table.parent
@@ -65,7 +61,7 @@ class Command(BaseCommand):
             if not table:
                 continue
 
-            # Default values
+            # Alapértelmezett értékek
             tests = {
                 "country": country or "",
                 "variable": variable or "",
@@ -79,9 +75,7 @@ class Command(BaseCommand):
                 "ad_p": "",
             }
 
-            # ------------------------------------
-            # 3) PARSE THE ROWS
-            # ------------------------------------
+            # Sorok feldolgozása
             for tr in table.find_all("tr"):
                 cells = [c.get_text(strip=True) for c in tr.find_all(["th", "td"])]
                 if not cells:
@@ -107,9 +101,7 @@ class Command(BaseCommand):
 
             rows_data.append(tests)
 
-        # ------------------------------------
-        # 4) WRITE CSV
-        # ------------------------------------
+        # CSV kiírás
         fieldnames = [
             "country", "variable",
             "sw_w", "sw_p",

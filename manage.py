@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""Django parancssori eszköz adminisztratív feladatokhoz."""
 import os
 import sys
 
 
 def main():
-    """Run administrative tasks."""
+    """Adminisztratív feladatok futtatása."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
     try:
         from django.core.management import execute_from_command_line

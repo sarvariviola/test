@@ -4,11 +4,11 @@ import csv
 
 
 class Command(BaseCommand):
-    help = "Extract Overall ANOVA and Levene test results from SAS HTML into CSV"
+    help = "Régiószintű ANOVA és Levene teszt eredmények kinyerése SAS HTML fájlból CSV-be"
 
     def add_arguments(self, parser):
-        parser.add_argument("html_file", type=str, help="Path to SAS HTML")
-        parser.add_argument("csv_out", type=str, help="Path to output CSV")
+        parser.add_argument("html_file", type=str, help="A SAS HTML fájl elérési útvonala")
+        parser.add_argument("csv_out", type=str, help="A kimeneti CSV fájl elérési útvonala")
 
     def handle(self, *args, **options):
         html_path = options["html_file"]
@@ -17,13 +17,10 @@ class Command(BaseCommand):
         with open(html_path, "r", encoding="utf-8", errors="ignore") as f:
             soup = BeautifulSoup(f.read(), "html.parser")
 
-        # ide gyűjtünk mindent változónként
+        # Eredmények változónként
         results = {}
 
-        # =====================================================
-        # 1️⃣ OVERALL ANOVA (Model sor)
-        # =====================================================
-        # Ezek a táblák NÁLAD summary="Overall ANOVA"
+        # OVERALL ANOVA (Model sor)
         anova_tables = soup.find_all(
             "table",
             summary=lambda x: x and "Overall ANOVA" in x
@@ -66,11 +63,8 @@ class Command(BaseCommand):
             results[variable]["anova_f"] = cells[3]
             results[variable]["anova_p"] = cells[4]
 
-        # =====================================================
-        # 2️⃣ LEVENE TESZT
-        # =====================================================
-        # A fejléc így néz ki:
-        # <th scope="colgroup">Levene's Test for Homogeneity of gdp_me Variance<br/>...</th>
+        # LEVENE TESZT
+        # A fejléc így néz ki: <th scope="colgroup">Levene's Test for Homogeneity of gdp_me Variance<br/>...</th>
         levene_headers = soup.find_all(
             "th",
             attrs={"scope": "colgroup"}
@@ -123,9 +117,7 @@ class Command(BaseCommand):
 
                 break
 
-        # =====================================================
         # CSV KIÍRÁS
-        # =====================================================
         with open(csv_out, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(
                 f,

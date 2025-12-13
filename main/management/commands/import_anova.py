@@ -36,9 +36,9 @@ class Command(BaseCommand):
                 AnovaTestCountry.objects.create(
                     variable=row["variable"],
                     anova_f=to_float(row.get("anova_f")),
-                    anova_p=row.get("anova_p"),      # 👈 STRING, <.0001 MEGMARAD
+                    anova_p=row.get("anova_p"),      # String típus, hogy meg tudja őrizni a "<.0001" formátumot
                     levene_f=to_float(row.get("levene_f")),
-                    levene_p=row.get("levene_p"),    # 👈 STRING, <.0001 MEGMARAD
+                    levene_p=row.get("levene_p"),    # String típus, hogy meg tudja őrizni a "<.0001" formátumot
                 )
                 created += 1
 

@@ -4,8 +4,9 @@ from .models import NormalityTestCountry, NormalityTestRegion, AnovaTestCountry,
 from django.conf import settings
 
 
-# A változók rövidített technikai neveit emberibb, olvashatóbb formára alakítjuk
-# Ez segít a felhasználói felületen történő megjelenítésben
+# -------------------------------
+# VÁLTOZÓK SZÉP ELNEVEZÉSEI
+# -------------------------------
 DISPLAY_NAMES = {
     "all_fogy": "Államháztartás végső fogyasztási kiadásai",
     "AVFK_ezer_fore": "Államháztartás végső fogyasztási kiadásai (ezer főre)",
@@ -90,8 +91,9 @@ keyword_list = [
     "ANOVA", "Normalitás", "Shapiro–Wilk", "Gazdaság", "Régiók", "Országok","Bulgária", "Komogorov-Smirnov",
 ]
 
-# Egyes változók két formában jelennek meg: abszolút értékben és ezer főre vetítve
-# Itt tároljuk ezeket a párokat, hogy mindkét verzió eredményét meg tudjuk jeleníteni
+# -------------------------------
+# PÁROSÍTOTT VÁLTOZÓK
+# -------------------------------
 PAIRED_VARS = {
     "gdp_me": ["gdp_me", "gdp_me_ezer"],
     "fogy_alk": ["fogy_alk", "fogy_alk_ezer"],
@@ -126,8 +128,9 @@ def index(request):
         "all_normal": False,
     }
 
-    # Lekérdezzük a választható változók listáját a kiválasztott elemzési szint alapján
-    # Csak azokat a változókat jelenítjük meg, amelyekhez van ANOVA eredmény vagy grafikon
+    # -----------------------------
+    # VÁLTOZÓK LISTÁJA
+    # -----------------------------
     if level == "orszag":
         variables = NormalityTestCountry.objects.values_list("variable", flat=True).distinct().order_by("variable")
     elif level == "regio":
@@ -153,8 +156,9 @@ def index(request):
     if selected_var:
         display_var = DISPLAY_NAMES.get(selected_var, selected_var)
 
-    # Normalitási tesztek (Shapiro-Wilk) eredményeinek lekérdezése
-    # Megvizsgáljuk minden ország/régió esetében, hogy az adatok normális eloszlásúak-e
+    # -----------------------------
+    # NORMALITÁS
+    # -----------------------------
     if level == "orszag" and selected_var:
         qs = NormalityTestCountry.objects.filter(variable=selected_var).order_by("country")
         key_name = "country"
@@ -182,9 +186,9 @@ def index(request):
     stats["normality"] = normality_list
     stats["all_normal"] = all(x["normal"] for x in normality_list) if normality_list else False
 
-    # ANOVA és Levene-teszt eredményeinek lekérdezése a kiválasztott változóhoz
-    # Az ANOVA megmutatja, van-e szignifikáns különbség a csoportok között
-    # A Levene-teszt ellenőrzi a szóráshomogenitás feltételét
+    # -----------------------------
+    # ANOVA + LEVENE – FŐ VÁLTOZÓ
+    # -----------------------------
     model = AnovaTestCountry if level == "orszag" else AnovaTestRegion
 
     try:
@@ -208,8 +212,9 @@ def index(request):
 
     image_path = f"main/plots/{level}_{selected_var}.png" if selected_var else None
 
-    # Ha a kiválasztott változónak van párja (pl. abszolút + ezer főre vetített),
-    # akkor lekérdezzük a pár ANOVA eredményeit is, hogy együtt megjeleníthessük őket
+    # -----------------------------
+    # PÁROSÍTOTT VÁLTOZÓ
+    # -----------------------------
     paired_var = None
     paired_display = None
     paired_anova = None
